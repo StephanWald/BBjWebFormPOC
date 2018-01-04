@@ -1,0 +1,43 @@
+<html>
+
+<head>
+
+
+</head>
+
+<body>
+<div id='eventTransporterDiv' onClick='bbj_post_event(event);' style="background-color:red;"></div>
+
+CD Number:
+<input id="IPN_CDNUMBER" type="number" onfocusout="onLostFocus(this)">
+<br>
+Title:
+<input id="IPE_TITLE"  oninput="onEditModify(this)" onfocusout="onLostFocus(this)">
+<br>
+Artist:
+<input id="IPE_ARTIST"  oninput="onEditModify(this)" onfocusout="onLostFocus(this)">
+<br>
+<button id="BTN_CLEAR" onclick="onButtonPush(this)">Cancel</button>
+<br>
+<button id="BTN_SAVE" onclick="onButtonPush(this)">Save</button>
+
+<!--
+
+<hr>
+testing the interface:<br>
+<button onclick="setText('IPE_ARTIST','artist')">test artist setText</button>
+<br>
+<button onclick="setBackColor('IPN_CDNUMBER','yellow')">test set color of number to yellow</button>
+<br>
+
+<button onclick="setFocus('IPE_TITLE')">test set focus to title</button>
+<br>
+
+<button onclick="setEnabled('BTN_SAVE',false);">test disable SAVE Button</button>
+<br>
+
+-->
+
+</body>
+
+</html>

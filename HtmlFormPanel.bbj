@@ -1,0 +1,174 @@
+
+use ::WebFormControl.bbj::WebFormControl
+use ::BBjWidget/BBjWidget.bbj::BBjWidget
+
+class public HtmlFormPanel extends BBjWidget 
+
+    field private BBjWindow wnd!
+    field private BBjSysGui sg!
+    field private BBjHtmlView HTMLView! 
+    field private Boolean IsReady! = BBjAPI.FALSE
+    field private BBjVector backlog! = new BBjVector()
+    field private java.util.HashMap eventmap! = new java.util.HashMap()
+    
+    method public HtmlFormPanel(BBjWindow wnd!)
+        #wnd!=wnd!
+        #super!.create(#wnd!,100,0,0,800,600)
+        wnd!.setCallback(BBjAPI.ON_RESIZE,#this!,"onResize")
+    methodend
+    
+    method public void onResize(BBjResizeEvent ev!)
+        #setSize(ev!.getWidth(),ev!.getHeight())
+    methodend
+    
+    method public WebFormControl getControl(BBjString name$)
+        methodret new WebFormControl(name$,#this!)
+    methodend
+   
+    method public BBjTopLevelWindow getTopLevelWnd()
+        methodret #wnd!
+    methodend
+    
+    method public void setCallback(BBjString name$, int cb!, BBjString label!)
+        ev$ = name$+"___"+str(cb!)
+        #eventmap!.put(ev$,label!)
+        BBjAPI().setCustomEventCallback(ev$,label!)
+    methodend
+        
+    method public void setText(BBjString name$, BBjString text!)
+        s$="setText('"+name$+"','"+str(text!)+"');"
+        #executeScript(s$)
+    methodend
+        
+    method public void setBackColor(BBjString name$, BBjColor color!)
+        c$="#"+hta(chr(color!.getRed()))+hta(chr(color!.getGreen()))+hta(chr(color!.getBlue()))
+        s$="setBackColor('"+name$+"','"+c$+"');"
+        #executeScript(s$)
+    methodend  
+
+    method public void setEditable(BBjString name$, int editable!)
+        ed$="false"
+        if editable! then ed$="true"
+        s$="setEditable('"+name$+"',"+ed$+");"
+        #executeScript(s$)
+    methodend 
+        
+    method public void setEnabled(BBjString name$, int editable!)
+        ed$="false"
+        if editable! then ed$="true"
+        s$="setEnabled('"+name$+"',"+ed$+");"
+        #executeScript(s$)
+    methodend
+            
+    method public void focus(BBjString name$)
+        s$="setFocus('"+name$+"');"
+        #executeScript(s$)
+    methodend      
+    
+    method public BBjString getText(BBjString name$)
+        obj! = #HTMLView!.executeScript("getText('"+name$+"');")
+        methodret str(obj!)
+    methodend 
+            
+    method public void redraw(Boolean f_init!)
+        
+        declare BBjHtmlView htmlview! 
+    
+        if (f_init!) then
+            dummy$=stbl("!OPTIONS","JAVAFX_HTMLVIEW=true")
+            ch=unt
+            open (ch)"WebForm.html"
+            read record (ch,siz=5512000)html$
+            close (ch)   
+
+            htmlview! = #getCanvas().addHtmlView(101,0,0,#getCanvas().getWidth(),#getCanvas().getHeight(),html$)
+            htmlview!.setCallback(BBjAPI.ON_PAGE_LOADED,#this!,"onLoad")
+            htmlview!.setCallback(BBjAPI.ON_NATIVE_JAVASCRIPT,#this!,"onNativeEvent")
+            htmlview!.setOpaque(0)
+            
+            #HTMLView!=htmlview!
+            if INFO(3,6)<>"5" then
+                #HTMLView!.setLocation(-9,-9)
+            fi
+        fi
+        
+        if INFO(3,6)="5" then
+            #HTMLView!.setSize(#getCanvas().getWidth(),#getCanvas().getHeight())
+        else
+            #HTMLView!.setSize(#getCanvas().getWidth()+16,#getCanvas().getHeight()+16)
+        fi
+    methodend            
+
+    method public void onLoad(BBjEvent ev!)
+
+        #HTMLView!.clearCallback(#HTMLView!.ON_PAGE_LOADED); rem ' only do this once
+
+        ch=unt
+
+        rem loading the patched ag-grid in BUI until they will have fixed their code for the getDocument method    
+        if INFO(3,6)="5" then
+            open (ch)"WebForm.js"
+            read record (ch,siz=5512000)script$
+            close (ch)        
+            #HTMLView!.injectScript(script$)
+            #HTMLView!.injectScript(script$,1)
+        else
+            open (ch)"WebForm.js"
+            read record (ch,siz=5512000)script$
+            close (ch)   
+            p_script! = script$
+            p_script! = p_script!.replaceAll("\$doc","document")
+            p_script! = p_script!.replaceAll("\$win","window")
+            #HTMLView!.injectScript(str(p_script!),1)
+            #HTMLView!.injectScript(str(p_script!))
+        fi
+
+        
+        #IsReady! = BBjAPI.TRUE
+        
+        
+        it! = #backlog!.iterator()
+        while it!.hasNext()
+            s$=it!.next()
+            #HTMLView!.executeScript(s$)
+        wend
+        
+        #backlog! = null()
+        
+    methodend
+    
+    method public void onNativeEvent ( BBjNativeJavaScriptEvent ev!)
+    
+        n$=str(ev!.getEventMap())
+        control$=n$(pos("control="=n$)+8)
+        control$=control$(1,pos(","=control$)-1)
+        ? n$
+        if pos("button-push"=N$)>0 then
+            ev$=control$+"___"+str(BBjAPI.ON_BUTTON_PUSH)
+            BBjAPI().postPriorityCustomEvent(ev$,null())
+        fi   
+
+        if pos("lost-focus"=N$)>0 then
+            ev$=control$+"___"+str(BBjAPI.ON_LOST_FOCUS)
+            BBjAPI().postPriorityCustomEvent(ev$,ev$)
+        fi   
+
+        if pos("edit-modify"=N$)>0 then
+            ev$=control$+"___"+str(BBjAPI.ON_EDIT_MODIFY)
+            BBjAPI().postPriorityCustomEvent(ev$,ev$)
+            ? ev$
+        fi 
+            
+    methodend
+
+    method private Object executeScript(BBjString s$)
+        if #IsReady! then
+            methodret #HTMLView!.executeScript(s$)
+        else
+            #backlog!.addItem(s$)
+        fi
+        
+        methodret null() 
+    methodend    
+    
+classend
