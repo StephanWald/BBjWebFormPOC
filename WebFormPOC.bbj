@@ -1,10 +1,13 @@
+use_arc=0
 
+if use_arc then
+    sg!  = BBjAPI().openSysGui("X0")
+    res  = sg!.resOpen("WebFormPOC.arc")
+    wnd! = sg!.createTopLevelWindow(res,101)
+else
+    wnd! = new ::WebForm.bbj::WebForm()
+endif
 
-wnd! = new ::WebForm.bbj::WebForm()
-
-REM sg!  = BBjAPI().openSysGui("X0")
-REM res  = sg!.resOpen("WebFormPOC.arc")
-REM wnd! = sg!.createTopLevelWindow(res,101)
 
 sqlopen (1)"CDStore"
 sqlprep (1)"GET TABLE INFO FOR CDINVENTORY"
