@@ -22,37 +22,37 @@
     }
 	
     function setText(name,text){
-        var ctrl = document.getElementById(name);
+        var ctrl = $doc.getElementById(name);
         ctrl.value=text;
     }
 
     function setFocus(name){
-        var ctrl = document.getElementById(name);
+        var ctrl = $doc.getElementById(name);
         ctrl.focus();
     }
 	
     function getText(name){
-        return document.getElementById(name).value;
+        return $doc.getElementById(name).value;
     }	
 
     function setBackColor(name,color){
-        var ctrl = document.getElementById(name);
+        var ctrl = $doc.getElementById(name);
         ctrl.style.backgroundColor = color;
     }    
 
     function setEnabled(name,enabled){
-        var ctrl = document.getElementById(name);
+        var ctrl = $doc.getElementById(name);
         ctrl.disabled = !enabled;
     } 	
 	
     function setEditable(name,enabled){
-        var ctrl = document.getElementById(name);
+        var ctrl = $doc.getElementById(name);
         ctrl.disabled = !enabled;
 		//is disabled really the correct flag?
     } 		
 	
 	function bbj_send_event(payload) {
-	  var d = $doc.getElementById('eventTransporterDiv');
+	  var d = document.getElementById('eventTransporterDiv');
 	  var event = new Event('click');
 	  event.payload = payload;
 	  d.dispatchEvent(event);

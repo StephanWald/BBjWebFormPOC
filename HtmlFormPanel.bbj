@@ -104,8 +104,7 @@ class public HtmlFormPanel extends BBjWidget
         #HTMLView!.clearCallback(#HTMLView!.ON_PAGE_LOADED); rem ' only do this once
 
         ch=unt
-
-        rem loading the patched ag-grid in BUI until they will have fixed their code for the getDocument method    
+   
         if INFO(3,6)="5" then
             open (ch)"WebForm.js"
             read record (ch,siz=5512000)script$
