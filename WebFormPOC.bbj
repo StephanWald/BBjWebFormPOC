@@ -5,7 +5,7 @@ if use_arc then
     res  = sg!.resOpen("WebFormPOC.arc")
     wnd! = sg!.createTopLevelWindow(res,101)
 else
-    wnd! = new ::WebForm.bbj::WebForm()
+    wnd! = new ::WebForm.bbj::WebForm("WebForm.html")
 endif
 
 

@@ -10,9 +10,11 @@ class public HtmlFormPanel extends BBjWidget
     field private Boolean IsReady! = BBjAPI.FALSE
     field private BBjVector backlog! = new BBjVector()
     field private java.util.HashMap eventmap! = new java.util.HashMap()
+    field private BBjString Resource$
     
-    method public HtmlFormPanel(BBjWindow wnd!)
+    method public HtmlFormPanel(BBjWindow wnd!, BBjString resource$)
         #wnd!=wnd!
+        #Resource$ = resource$
         #super!.create(#wnd!,100,0,0,800,600)
         wnd!.setCallback(BBjAPI.ON_RESIZE,#this!,"onResize")
     methodend
@@ -77,7 +79,7 @@ class public HtmlFormPanel extends BBjWidget
         if (f_init!) then
             dummy$=stbl("!OPTIONS","JAVAFX_HTMLVIEW=true")
             ch=unt
-            open (ch)"WebForm.html"
+            open (ch)#Resource$
             read record (ch,siz=5512000)html$
             close (ch)   
 
