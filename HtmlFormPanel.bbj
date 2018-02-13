@@ -1,7 +1,7 @@
-
 use ::WebFormControl.bbj::WebFormControl
 use ::BBjWidget/BBjWidget.bbj::BBjWidget
-
+use ::BBUtils.bbj::BBUtils
+        
 class public HtmlFormPanel extends BBjWidget 
 
     field private BBjWindow wnd!
@@ -75,15 +75,21 @@ class public HtmlFormPanel extends BBjWidget
     method public void redraw(Boolean f_init!)
         
         declare BBjHtmlView htmlview! 
+
+        subdir$="deliver"
+        BBUtils.copyFileToWebServer("WebForm.js",subdir$)
+        url$=BBUtils.copyFileToWebServer(#Resource$,subdir$)
+
+        while pos("%2F"=url$)>0 
+            url$=url$(1,pos("%2F"=url$)-1)+"/"+url$(pos("%2F"=url$)+3)
+        wend
     
         if (f_init!) then
             dummy$=stbl("!OPTIONS","JAVAFX_HTMLVIEW=true")
-            ch=unt
-            open (ch)#Resource$
-            read record (ch,siz=5512000)html$
-            close (ch)   
-
-            htmlview! = #getCanvas().addHtmlView(101,0,0,#getCanvas().getWidth(),#getCanvas().getHeight(),html$)
+            htmlview! = #getCanvas().addHtmlView(101,0,0,#getCanvas().getWidth(),#getCanvas().getHeight(),"")
+            
+        
+            htmlview!.setUrl(url$)
             htmlview!.setCallback(BBjAPI.ON_PAGE_LOADED,#this!,"onLoad")
             htmlview!.setCallback(BBjAPI.ON_NATIVE_JAVASCRIPT,#this!,"onNativeEvent")
             htmlview!.setOpaque(0)
@@ -104,30 +110,14 @@ class public HtmlFormPanel extends BBjWidget
     method public void onLoad(BBjEvent ev!)
 
         #HTMLView!.clearCallback(#HTMLView!.ON_PAGE_LOADED); rem ' only do this once
-
-        ch=unt
    
-        if INFO(3,6)="5" then
-            open (ch)"WebForm.js"
-            read record (ch,siz=5512000)script$
-            close (ch)        
-            #HTMLView!.injectScript(script$)
-            #HTMLView!.injectScript(script$,1)
-        else
-            open (ch)"WebForm.js"
-            read record (ch,siz=5512000)script$
-            close (ch)   
-            p_script! = script$
-            p_script! = p_script!.replaceAll("\$doc","document")
-            p_script! = p_script!.replaceAll("\$win","window")
-            #HTMLView!.injectScript(str(p_script!),1)
-            #HTMLView!.injectScript(str(p_script!))
-        fi
-
-        
         #IsReady! = BBjAPI.TRUE
         
+            if (info(3,6)<>"5") then
+                #HTMLView!.executeScript("if (!document.getElementById('FirebugLite')){E = document['createElement' + 'NS'] && document.documentElement.namespaceURI;E = E ? document['createElement' + 'NS'](E, 'script') : document['createElement']('script');E['setAttribute']('id', 'FirebugLite');E['setAttribute']('src', 'https://getfirebug.com/' + 'firebug-lite.js' + '#startOpened');E['setAttribute']('FirebugLite', '4');(document['getElementsByTagName']('head')[0] || document['getElementsByTagName']('body')[0]).appendChild(E);E = new Image;E['setAttribute']('src', 'https://getfirebug.com/' + '#startOpened');}")
+            fi
         
+         wait 3
         it! = #backlog!.iterator()
         while it!.hasNext()
             s$=it!.next()

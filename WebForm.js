@@ -22,31 +22,31 @@
     }
 	
     function setText(name,text){
-        var ctrl = $doc.getElementById(name);
+        var ctrl = document.getElementById(name);
         ctrl.value=text;
     }
 
     function setFocus(name){
-        var ctrl = $doc.getElementById(name);
+        var ctrl = document.getElementById(name);
         ctrl.focus();
     }
 	
     function getText(name){
-        return $doc.getElementById(name).value;
+        return document.getElementById(name).value;
     }	
 
     function setBackColor(name,color){
-        var ctrl = $doc.getElementById(name);
+        var ctrl = document.getElementById(name);
         ctrl.style.backgroundColor = color;
     }    
 
     function setEnabled(name,enabled){
-        var ctrl = $doc.getElementById(name);
+        var ctrl = document.getElementById(name);
         ctrl.disabled = !enabled;
     } 	
 	
     function setEditable(name,enabled){
-        var ctrl = $doc.getElementById(name);
+        var ctrl = document.getElementById(name);
         ctrl.disabled = !enabled;
 		//is disabled really the correct flag?
     } 		
@@ -58,6 +58,8 @@
 	  d.dispatchEvent(event);
 }
 
-function bbj_post_event(ev) {
-	window.basisDispatchCustomEvent(ev, ev.payload);
-}
+	function bbj_post_event(ev) {
+	console.log(window.top.basisDispatchCustomEvent);
+	console.log(ev);
+	  window.parent.basisDispatchCustomEvent(ev, ev.payload);
+	}
