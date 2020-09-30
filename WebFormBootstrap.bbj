@@ -5,7 +5,7 @@ sg!  = BBjAPI().openSysGui("X0")
 
 if info(3,6)<>"6" then
     rem arc
-    res  = sg!.resOpen("WebFormPOC.arc")
+    res  = sg!.resOpen("WebFormBootstrap.arc")
     wnd! = sg!.createTopLevelWindow(res,101)
     
     C_Window101__IPNCDNUMBER! = wnd!.getControl("IPN_CDNUMBER")
