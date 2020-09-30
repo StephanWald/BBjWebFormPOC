@@ -1,0 +1,9 @@
+.BBjPanel-flex
+{
+  display:flex;
+  flex-flow: column wrap;
+}
+.BBjPanel
+{
+  display: grid;
+}

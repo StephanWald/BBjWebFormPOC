@@ -1,0 +1,132 @@
+rem demonstrates the use of a CSS grid layout with the BUI webapp deployment
+rem register to run with WebFormCSSGrid.css in Enterprise Manager
+
+
+sg!  = BBjAPI().openSysGui("X0")
+res  = sg!.resOpen("WebFormCSSGrid.arc")
+wnd! = sg!.createTopLevelWindow(res,101)
+
+
+sqlopen (1)"CDStore"
+sqlprep (1)"GET TABLE INFO FOR CDINVENTORY"
+sqlexec (1)
+dim i$:sqltmpl(1)
+i$=sqlfetch(1)
+sqlclose (1)
+
+tpl$ = i.template$
+ch=unt
+open (ch)i.filename$
+
+yellow! = BBjAPI().makeColor("YELLOW")
+white! = BBjAPI().makeColor("WHITE")
+
+C_Window101__LBLCDNUMBER! = wnd!.getControl("LBL_CDNUMBER")
+C_Window101__LBLCDNUMBER!.setStyle("gridRow","1")
+C_Window101__LBLCDNUMBER!.setStyle("gridColumn","1")
+
+C_Window101__IPNCDNUMBER! = wnd!.getControl("IPN_CDNUMBER")
+C_Window101__IPNCDNUMBER!.setStyle("gridRow","1")
+C_Window101__IPNCDNUMBER!.setStyle("gridColumn","2")
+
+C_Window101__LBLTITLE! = wnd!.getControl("LBL_TITLE")
+C_Window101__LBLTITLE!.setStyle("gridRow","2")
+C_Window101__LBLTITLE!.setStyle("gridColumn","1")
+
+C_Window101__IPETITLE! = wnd!.getControl("IPE_TITLE")
+C_Window101__IPETITLE!.setStyle("gridRow","2")
+C_Window101__IPETITLE!.setStyle("gridColumn","2")
+
+C_Window101__LBLARTIST! = wnd!.getControl("LBL_ARTIST")
+C_Window101__LBLARTIST!.setStyle("gridRow","3")
+C_Window101__LBLARTIST!.setStyle("gridColumn","1")
+
+C_Window101__IPEARTIST! = wnd!.getControl("IPE_ARTIST")
+C_Window101__IPEARTIST!.setStyle("gridRow","3")
+C_Window101__IPEARTIST!.setStyle("gridColumn","2")
+
+C_Window101__BTNCLEAR! = wnd!.getControl("BTN_CLEAR")
+C_Window101__BTNCLEAR!.setStyle("gridRow","1")
+C_Window101__BTNCLEAR!.setStyle("gridColumn","5")
+
+C_Window101__BTNSAVE! = wnd!.getControl("BTN_SAVE")
+C_Window101__BTNSAVE!.setStyle("gridRow","2")
+C_Window101__BTNSAVE!.setStyle("gridColumn","5")
+
+C_Window101__BTNEXIT! = wnd!.getControl("BTN_EXIT")
+C_Window101__BTNEXIT!.setStyle("gridRow","3")
+C_Window101__BTNEXIT!.setStyle("gridColumn","5")
+
+C_Window101__IPNCDNUMBER!.setCallback(BBjAPI.ON_LOST_FOCUS,"IPNCDNUMBER__ON_LOST_FOCUS")
+C_Window101__BTNCLEAR!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNCLEAR__ON_BUTTON_PUSH")
+C_Window101__BTNSAVE!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNSAVE__ON_BUTTON_PUSH")
+C_Window101__BTNEXIT!.setCallback(BBjAPI.ON_BUTTON_PUSH,"byebye")
+C_Window101__IPEARTIST!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPEARTIST__ON_EDIT_MODIFY")
+C_Window101__IPETITLE!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPETITLE__ON_EDIT_MODIFY")
+wnd!.setCallback(BBjAPI.ON_CLOSE,"byebye")
+
+gosub clear_form
+
+process_events
+
+byebye:
+    bye
+    
+    
+clear_form:
+        C_Window101__IPEARTIST!.setText("")
+        C_Window101__IPETITLE!.setText("")
+        C_Window101__IPEARTIST!.setEditable(0)
+        C_Window101__IPETITLE!.setEditable(0)
+        C_Window101__IPNCDNUMBER!.setEditable(1)
+        C_Window101__IPNCDNUMBER!.setText("")
+        C_Window101__IPNCDNUMBER!.focus()
+        C_Window101__BTNSAVE!.setEnabled(0)
+return
+
+IPNCDNUMBER__ON_LOST_FOCUS:
+System.err.println(sg!.getLastEvent())
+        dim rec$:tpl$
+        r_key$=str(num(C_Window101__IPNCDNUMBER!.getText(),err=no_rec):"000000",err=no_rec)
+        read record (ch,key=r_key$,dom=no_rec)rec$
+        C_Window101__IPEARTIST!.setText(rec.title$)
+        C_Window101__IPETITLE!.setText(rec.artist$)
+        C_Window101__IPEARTIST!.setEditable(1)
+        C_Window101__IPETITLE!.setEditable(1)
+        C_Window101__IPNCDNUMBER!.setEditable(0)
+        C_Window101__IPETITLE!.focus()
+        C_Window101__IPNCDNUMBER!.setBackColor(white!)
+        return
+        
+        no_rec:
+System.err.println(errmes(-1))
+            C_Window101__IPNCDNUMBER!.focus()
+            C_Window101__IPNCDNUMBER!.setBackColor(yellow!)
+
+return
+
+BTNCLEAR__ON_BUTTON_PUSH:
+        gosub clear_form
+return
+
+BTNSAVE__ON_BUTTON_PUSH:
+        dim rec$:tpl$
+        r_key$=str(num(C_Window101__IPNCDNUMBER!.getText(),err=no_rec_BTNSAVE__ON_BUTTON_PUSH):"000000",err=no_rec_BTNSAVE__ON_BUTTON_PUSH)
+        read record (ch,key=r_key$,dom=no_rec_BTNSAVE__ON_BUTTON_PUSH)rec$
+        rec$=field(rec$)
+        rec.title$=C_Window101__IPEARTIST!.getText()
+        rec.artist$=C_Window101__IPETITLE!.getText()
+        write record (ch)rec$
+        
+        no_rec_BTNSAVE__ON_BUTTON_PUSH:
+        gosub clear_form
+        
+return
+
+IPEARTIST__ON_EDIT_MODIFY:
+        C_Window101__BTNSAVE!.setEnabled(1)
+return
+
+IPETITLE__ON_EDIT_MODIFY:
+        C_Window101__BTNSAVE!.setEnabled(1)
+return

@@ -1,0 +1,237 @@
+rem don't forget to register the bootstrap.css in Enterprise Manager to run this as a webapp
+
+
+sg!  = BBjAPI().openSysGui("X0")
+
+if info(3,6)<>"6" then
+    rem arc
+    res  = sg!.resOpen("WebFormPOC.arc")
+    wnd! = sg!.createTopLevelWindow(res,101)
+    
+    C_Window101__IPNCDNUMBER! = wnd!.getControl("IPN_CDNUMBER")
+    C_Window101__LBLCDNUMBER! = wnd!.getControl("LBL_CDNUMBER")
+    C_Window101__LBLTITLE! = wnd!.getControl("LBL_TITLE")
+    C_Window101__IPETITLE! = wnd!.getControl("IPE_TITLE")
+    C_Window101__LBLARTIST! = wnd!.getControl("LBL_ARTIST")
+    C_Window101__IPEARTIST! = wnd!.getControl("IPE_ARTIST")
+    C_Window101__BTNCLEAR! = wnd!.getControl("BTN_CLEAR")
+    C_Window101__BTNSAVE! = wnd!.getControl("BTN_SAVE")
+else
+    rem bootstrap
+    container! = new Container()
+    wnd! = container!.getWnd()
+
+    row! = container!.addRow()
+    
+    col! = row!.addColumn("col-md-9")
+
+    r! = new Row(col!.getWnd())
+    
+    C_Window101__LBLCDNUMBER! = r!.getWnd().addStaticText(101,0,0,250,25,"CD Number:")
+    C_Window101__LBLCDNUMBER!.setName("LBL_CDNUMBER")
+    C_Window101__LBLCDNUMBER!.addStyle("col-sm-3")
+    
+    C_Window101__IPNCDNUMBER! = r!.getWnd().addInputN(102,0,0,120,25)
+    C_Window101__IPNCDNUMBER!.setName("IPN_CDNUMBER")
+    C_Window101__IPNCDNUMBER!.addStyle("col-sm-9")
+    C_Window101__IPNCDNUMBER!.setStyle("max-width","100px")
+    
+    
+    r! = new Row(col!.getWnd())
+    
+    C_Window101__LBLTITLE! = r!.getWnd().addStaticText(103,0,0,120,25,"Title:")
+    C_Window101__LBLTITLE!.setName("LBL_TITLE")
+    C_Window101__LBLTITLE!.addStyle("col-sm-3")
+    
+    C_Window101__IPETITLE! = r!.getWnd().addInputE(104,0,0,220,25)
+    C_Window101__IPETITLE!.setName("IPE_TITLE")
+    C_Window101__IPETITLE!.addStyle("col-sm-9")
+
+    r! = new Row(col!.getWnd())
+
+    C_Window101__LBLARTIST! = r!.getWnd().addStaticText(105,0,0,120,25,"Artist:")
+    C_Window101__LBLARTIST!.setName("LBL_ARTIST")
+    C_Window101__LBLARTIST!.addStyle("col-sm-3")
+
+    C_Window101__IPEARTIST! = r!.getWnd().addInputE(106,0,0,220,25)
+    C_Window101__IPEARTIST!.setName("IPE_ARTIST")
+    C_Window101__IPEARTIST!.addStyle("col-sm-9")
+
+
+    rem area for buttons to the right
+    col! = row!.addColumn("col-md-3")
+    r! = new Row(col!.getWnd())
+    
+    C_Window101__BTNCLEAR! = r!.getWnd().addButton(107,0,0,80,25,"CLEAR")
+    C_Window101__BTNCLEAR!.setName("BTN_CLEAR")
+    C_Window101__BTNCLEAR!.addStyle("col-6")
+    C_Window101__BTNCLEAR!.addStyle("col-md-10")
+
+    
+    C_Window101__BTNSAVE! = r!.getWnd().addButton(108,0,0,80,25,"SAVE")
+    C_Window101__BTNSAVE!.setName("BTN_SAVE")
+    C_Window101__BTNSAVE!.addStyle("col-6")
+    C_Window101__BTNSAVE!.addStyle("col-md-10")
+
+    
+endif
+
+
+sqlopen (1)"CDStore"
+sqlprep (1)"GET TABLE INFO FOR CDINVENTORY"
+sqlexec (1)
+dim i$:sqltmpl(1)
+i$=sqlfetch(1)
+sqlclose (1)
+
+tpl$ = i.template$
+ch=unt
+open (ch)i.filename$
+
+yellow! = BBjColor.YELLOW
+white! = BBjColor.WHITE
+
+
+
+C_Window101__IPNCDNUMBER!.setCallback(BBjAPI.ON_LOST_FOCUS,"IPNCDNUMBER__ON_LOST_FOCUS")
+C_Window101__BTNCLEAR!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNCLEAR__ON_BUTTON_PUSH")
+C_Window101__BTNSAVE!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNSAVE__ON_BUTTON_PUSH")
+C_Window101__IPEARTIST!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPEARTIST__ON_EDIT_MODIFY")
+C_Window101__IPETITLE!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPETITLE__ON_EDIT_MODIFY")
+wnd!.setCallback(BBjAPI.ON_CLOSE,"byebye")
+
+gosub clear_form
+
+process_events
+
+byebye:
+    bye
+    
+    
+clear_form:
+        C_Window101__IPEARTIST!.setText("")
+        C_Window101__IPETITLE!.setText("")
+        C_Window101__IPEARTIST!.setEditable(0)
+        C_Window101__IPETITLE!.setEditable(0)
+        C_Window101__IPNCDNUMBER!.setEditable(1)
+        C_Window101__IPNCDNUMBER!.setText("")
+        C_Window101__IPNCDNUMBER!.focus()
+        C_Window101__BTNSAVE!.setEnabled(0)
+return
+
+IPNCDNUMBER__ON_LOST_FOCUS:
+
+        dim rec$:tpl$
+        r_key$=str(num(C_Window101__IPNCDNUMBER!.getText(),err=no_rec):"000000",err=no_rec)
+        read record (ch,key=r_key$,dom=no_rec)rec$
+        C_Window101__IPEARTIST!.setText(rec.title$)
+        C_Window101__IPETITLE!.setText(rec.artist$)
+        C_Window101__IPEARTIST!.setEditable(1)
+        C_Window101__IPETITLE!.setEditable(1)
+        C_Window101__IPNCDNUMBER!.setEditable(0)
+        C_Window101__IPETITLE!.focus()
+        C_Window101__IPNCDNUMBER!.setBackColor(white!)
+        return
+        
+        no_rec:
+            C_Window101__IPNCDNUMBER!.focus()
+            C_Window101__IPNCDNUMBER!.setBackColor(yellow!)
+
+return
+
+BTNCLEAR__ON_BUTTON_PUSH:
+        gosub clear_form
+return
+
+BTNSAVE__ON_BUTTON_PUSH:
+        dim rec$:tpl$
+        r_key$=str(num(C_Window101__IPNCDNUMBER!.getText(),err=no_rec_BTNSAVE__ON_BUTTON_PUSH):"000000",err=no_rec_BTNSAVE__ON_BUTTON_PUSH)
+        read record (ch,key=r_key$,dom=no_rec_BTNSAVE__ON_BUTTON_PUSH)rec$
+        rec$=field(rec$)
+        rec.title$=C_Window101__IPEARTIST!.getText()
+        rec.artist$=C_Window101__IPETITLE!.getText()
+        write record (ch)rec$
+        
+        no_rec_BTNSAVE__ON_BUTTON_PUSH:
+        gosub clear_form
+        
+return
+
+IPEARTIST__ON_EDIT_MODIFY:
+        C_Window101__BTNSAVE!.setEnabled(1)
+return
+
+IPETITLE__ON_EDIT_MODIFY:
+        C_Window101__BTNSAVE!.setEnabled(1)
+return
+
+
+
+
+class public Container
+
+    field private BBjWindow Wnd!
+
+    method public Container()
+        #Wnd! = BBjAPI().getSysGui().addWindow(0,0,100,100,"TEST",$00190003$)
+        #Wnd!.addStyle("container-fluid"); rem ' this goes on the BBjDockedChildrenPanel (BBjTopLevelWindow-container)
+    methodend
+    
+    method public Container(BBjWindow wnd!)
+        #Wnd! = wnd!
+        #Wnd!.addStyle("container-fluid"); rem ' this goes on the BBjDockedChildrenPanel (BBjTopLevelWindow-container)
+    methodend
+    
+    method public Row addRow()
+        methodret new Row(#Wnd!)
+    methodend
+        
+    method public BBjWindow getWnd()
+        methodret #Wnd!
+    methodend
+
+classend
+
+class public Row
+    
+    field private BBjWindow Wnd!
+    
+    method private Row()
+    methodend
+    
+    method public Row(BBjWindow parent!)
+    
+        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),0,0,0,0,$00100800$,BBjAPI().getSysGui().getAvailableContext())
+        #Wnd!.addPanelStyle("row"); rem ' this needs to go on the BBjPanel (BBjChildWindow-content)
+        #Wnd!.setStyle("border-style","none")
+    methodend
+    
+    method public Column addColumn(BBjString styles$)
+        methodret new Column(#Wnd!,styles$)
+    methodend
+    
+       method public BBjWindow getWnd()
+        methodret #Wnd!
+    methodend 
+    
+classend
+
+
+class public Column
+    
+    field private BBjWindow Wnd!
+    
+    method private Column()
+    methodend
+    
+    method public Column(BBjWindow parent!, BBjString styles$)
+    
+        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),0,0,0,0,$00100800$,BBjAPI().getSysGui().getAvailableContext())
+        #Wnd!.addStyle(styles$); rem ' this needs to go on the BBjPanel (BBjChildWindow-content)
+    methodend
+    
+    method public BBjWindow getWnd()
+        methodret #Wnd!
+    methodend
+
+classend
