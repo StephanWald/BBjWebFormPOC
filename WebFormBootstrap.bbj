@@ -2,8 +2,9 @@ rem don't forget to register the bootstrap.css in Enterprise Manager to run this
 
 sg!  = BBjAPI().openSysGui("X0")
 
-if msgbox("Use Bootstrap layout?",1)=2 then
+if info(3,6)<>"6" or msgbox("Use Bootstrap layout?",1)=2 then
     rem ' Use resource file
+	
     res  = sg!.resOpen("WebFormBootstrap.arc")
     wnd! = sg!.createTopLevelWindow(res,101)
     
