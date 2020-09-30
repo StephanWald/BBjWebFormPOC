@@ -1,10 +1,9 @@
 rem don't forget to register the bootstrap.css in Enterprise Manager to run this as a webapp
 
-
 sg!  = BBjAPI().openSysGui("X0")
 
-if info(3,6)<>"6" then
-    rem arc
+if msgbox("Use Bootstrap layout?",1)=2 then
+    rem ' Use resource file
     res  = sg!.resOpen("WebFormBootstrap.arc")
     wnd! = sg!.createTopLevelWindow(res,101)
     
@@ -16,8 +15,9 @@ if info(3,6)<>"6" then
     C_Window101__IPEARTIST! = wnd!.getControl("IPE_ARTIST")
     C_Window101__BTNCLEAR! = wnd!.getControl("BTN_CLEAR")
     C_Window101__BTNSAVE! = wnd!.getControl("BTN_SAVE")
+    C_Window101__BTNEXIT! = wnd!.getControl("BTN_EXIT")
 else
-    rem bootstrap
+    rem ' Bootstrap
     container! = new Container()
     wnd! = container!.getWnd()
 
@@ -67,12 +67,15 @@ else
     C_Window101__BTNCLEAR!.addStyle("col-6")
     C_Window101__BTNCLEAR!.addStyle("col-md-10")
 
-    
     C_Window101__BTNSAVE! = r!.getWnd().addButton(108,0,0,80,25,"SAVE")
     C_Window101__BTNSAVE!.setName("BTN_SAVE")
     C_Window101__BTNSAVE!.addStyle("col-6")
     C_Window101__BTNSAVE!.addStyle("col-md-10")
 
+    C_Window101__BTNEXIT! = r!.getWnd().addButton(109,0,0,80,25,"EXIT")
+    C_Window101__BTNEXIT!.setName("BTN_EXIT")
+    C_Window101__BTNEXIT!.addStyle("col-6")
+    C_Window101__BTNEXIT!.addStyle("col-md-10")
     
 endif
 
@@ -96,6 +99,7 @@ white! = BBjColor.WHITE
 C_Window101__IPNCDNUMBER!.setCallback(BBjAPI.ON_LOST_FOCUS,"IPNCDNUMBER__ON_LOST_FOCUS")
 C_Window101__BTNCLEAR!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNCLEAR__ON_BUTTON_PUSH")
 C_Window101__BTNSAVE!.setCallback(BBjAPI.ON_BUTTON_PUSH,"BTNSAVE__ON_BUTTON_PUSH")
+C_Window101__BTNEXIT!.setCallback(BBjAPI.ON_BUTTON_PUSH,"byebye")
 C_Window101__IPEARTIST!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPEARTIST__ON_EDIT_MODIFY")
 C_Window101__IPETITLE!.setCallback(BBjAPI.ON_EDIT_MODIFY,"IPETITLE__ON_EDIT_MODIFY")
 wnd!.setCallback(BBjAPI.ON_CLOSE,"byebye")
@@ -173,13 +177,13 @@ class public Container
     field private BBjWindow Wnd!
 
     method public Container()
-        #Wnd! = BBjAPI().getSysGui().addWindow(0,0,100,100,"TEST",$00190003$)
-        #Wnd!.addStyle("container-fluid"); rem ' this goes on the BBjDockedChildrenPanel (BBjTopLevelWindow-container)
+        #Wnd! = BBjAPI().getSysGui().addWindow(10,10,100,100,"WebFormBootstrap.bbj",$00190003$)
+        #Wnd!.addStyle("container-fluid")
     methodend
     
     method public Container(BBjWindow wnd!)
         #Wnd! = wnd!
-        #Wnd!.addStyle("container-fluid"); rem ' this goes on the BBjDockedChildrenPanel (BBjTopLevelWindow-container)
+        #Wnd!.addStyle("container-fluid")
     methodend
     
     method public Row addRow()
@@ -200,10 +204,8 @@ class public Row
     methodend
     
     method public Row(BBjWindow parent!)
-    
-        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),0,0,0,0,$00100800$,BBjAPI().getSysGui().getAvailableContext())
-        #Wnd!.addPanelStyle("row"); rem ' this needs to go on the BBjPanel (BBjChildWindow-content)
-        #Wnd!.setStyle("border-style","none")
+        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),1,2,3,4,"Row",$00100800$,BBjAPI().getSysGui().getAvailableContext())
+        #Wnd!.addPanelStyle("row")
     methodend
     
     method public Column addColumn(BBjString styles$)
@@ -225,9 +227,8 @@ class public Column
     methodend
     
     method public Column(BBjWindow parent!, BBjString styles$)
-    
-        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),0,0,0,0,$00100800$,BBjAPI().getSysGui().getAvailableContext())
-        #Wnd!.addStyle(styles$); rem ' this needs to go on the BBjPanel (BBjChildWindow-content)
+        #Wnd! = parent!.addChildWindow(parent!.getAvailableControlID(),5,6,7,8,"Column",$00100800$,BBjAPI().getSysGui().getAvailableContext())
+        #Wnd!.addStyle(styles$)
     methodend
     
     method public BBjWindow getWnd()

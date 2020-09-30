@@ -2,7 +2,7 @@
 
 VERSION "4.0"
 
-WINDOW 101 "" 200 200 651 176
+WINDOW 101 "WebFormBootstrap.arc" 200 200 651 176
 BEGIN
     EVENTMASK 0
     KEYBOARDNAVIGATION
@@ -52,6 +52,11 @@ BEGIN
     BUTTON 1, "Save", 486, 73, 90, 25
     BEGIN
         NAME "BTN_SAVE"
+    END
+
+    BUTTON 3, "Exit", 486, 105, 90, 25
+    BEGIN
+        NAME "BTN_EXIT"
     END
 
 END
