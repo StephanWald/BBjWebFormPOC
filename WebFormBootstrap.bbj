@@ -64,17 +64,17 @@ else
     
     C_Window101__BTNCLEAR! = r!.getWnd().addButton(107,0,0,80,25,"CLEAR")
     C_Window101__BTNCLEAR!.setName("BTN_CLEAR")
-    C_Window101__BTNCLEAR!.addStyle("col-6")
+    C_Window101__BTNCLEAR!.addStyle("col-4")
     C_Window101__BTNCLEAR!.addStyle("col-md-10")
 
     C_Window101__BTNSAVE! = r!.getWnd().addButton(108,0,0,80,25,"SAVE")
     C_Window101__BTNSAVE!.setName("BTN_SAVE")
-    C_Window101__BTNSAVE!.addStyle("col-6")
+    C_Window101__BTNSAVE!.addStyle("col-4")
     C_Window101__BTNSAVE!.addStyle("col-md-10")
 
     C_Window101__BTNEXIT! = r!.getWnd().addButton(109,0,0,80,25,"EXIT")
     C_Window101__BTNEXIT!.setName("BTN_EXIT")
-    C_Window101__BTNEXIT!.addStyle("col-6")
+    C_Window101__BTNEXIT!.addStyle("col-4")
     C_Window101__BTNEXIT!.addStyle("col-md-10")
     
 endif
